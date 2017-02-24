@@ -89,4 +89,29 @@ class BookmarksTable extends Table
 
         return $rules;
     }
-}
+
+// The $query argument is a query builder instance.
+// The $options array will contain the 'tags' option we passed
+// to find('tagged') in our controller action.
+    public function findTagged(Query $query, array $options)
+    {
+        $bookmarks = $this->find()
+            ->select(['id','url','title','description']);
+        
+        if(empty($options['tags'])) {
+            $bookmarks->leftJoinWith('Tags', function($q) {
+                return $q->where(['Tags.title IS' => null]);
+            });
+        } else {
+            $bookmarks->innerJoinWith('Tags',function($q) use ($options){
+                return $q->where(['Tags.title IN ' => $options['tags']]);
+            });
+        }
+        return $bookmarks->group(['Bookmarks.id']);
+
+/*Finder methods always get a Query Builder object and an array of options as parameters. Finders can manipulate the query and add any required conditions or criteria. When complete, finder methods must return a modified query object. In our finder we’ve leveraged the distinct() and matching() methods which allow us to find distinct bookmarks that have a ‘matching’ tag. The matching() method accepts an anonymous function that receives a query builder as its argument. Inside the callback we use the query builder to define conditions that will filter bookmarks that have specific tags.*/
+    }
+
+
+
+} // end of BookmarksTable

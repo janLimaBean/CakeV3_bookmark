@@ -43,12 +43,12 @@ use Cake\Routing\Route\DashedRoute;
  */
 Router::defaultRouteClass(DashedRoute::class);
 
-    // New route we're adding for our tagged action.
-    // The trailing `*` tells CakePHP that this action has
-    // passed parameters.
+// New route we're adding for our tagged action.
+// The trailing `*` tells CakePHP that this action has
+// passed parameters.
 
-    // NOTE THE SCOPE FIRST SO THAT TAGGED INHERITS THE /BOOKMARKS RULE
-    // - http://localhost:8765/bookmarks/tagged
+// NOTE THE SCOPE FIRST SO THAT TAGGED INHERITS THE /BOOKMARKS RULE
+// - http://localhost:8765/bookmarks/tagged
     Router::scope(
         '/bookmarks',
         ['controller' => 'Bookmarks'],

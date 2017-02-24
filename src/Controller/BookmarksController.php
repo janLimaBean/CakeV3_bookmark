@@ -43,14 +43,14 @@ class BookmarksController extends AppController
         $this->set('bookmark', $bookmark);
         $this->set('_serialize', ['bookmark']);
     }
-    // NEW FUNCTION THAT REFLECTS OUR ROUTES CONFIG WE ADDED FOR TAGS
+// NEW FUNCTION THAT REFLECTS OUR ROUTES CONFIG WE ADDED FOR TAGS
     public function tags()
     {
         // The 'pass' key is provided by CakePHP and contains all
         // the passed URL path segments in the request.
         $tags = $this->request->getParam('pass');
 
-        // Use the BookmarksTable to find tagged bookmarks.
+// Use the BookmarksTable to find tagged bookmarks.
         $bookmarks = $this->Bookmarks->find('tagged', [
             'tags' => $tags
         ]);
