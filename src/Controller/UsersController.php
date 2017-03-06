@@ -11,6 +11,19 @@ use App\Controller\AppController;
 class UsersController extends AppController
 {
 
+//NEW This code whitelists the logout action as a public action, and implements the logout method. Now you can visit /users/logout to log out. You should then be sent to the login page.
+    public function initialize()
+    {
+        parent::initialize();
+// Auth->allow specifies what pages are allowed to view if not logged in.
+        $this->Auth->allow(['logout','add']);
+    }
+    
+    public function isAuthorized($user)
+    {
+        return false;
+    }
+
     /**
      * Index method
      *
@@ -105,5 +118,23 @@ class UsersController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+//NEW LOGIN METHOD USING THE AUTH COMPONENT SETUP IN APPCONTROLLER
+    public function login()
+    {
+        if ($this->request->is('post')) {
+            $user = $this->Auth->identify();
+            if ($user) {
+                $this->Auth->setUser($user);
+                return $this->redirect($this->Auth->redirectUrl());
+            }
+            $this->Flash->error('Your username or password is incorrect.');
+        }
+    }
+//NEW LOGOUT FUNCTION
+    public function logout()
+    {
+        $this->Flash->success('You are not logged out.');
+        return $this->redirect($this->Auth->logout());
     }
 }

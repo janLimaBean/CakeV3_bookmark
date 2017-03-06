@@ -11,6 +11,29 @@ use App\Controller\AppController;
 class BookmarksController extends AppController
 {
 
+    public function isAuthorized($user)
+    {
+        $action = $this->request->getParam('action');
+
+        // The add and index actions are always allowed.
+        if(in_array($action,['index','add','tags'])) {
+            return true;
+        }
+
+        // All other actions require an id.
+        if(!$this->request->getParam('pass.0')) {
+            return false;
+        }
+
+        // Check that the bookmark belongs to the current user.
+        $id = $this->request->getParam('pass.0');
+        $bookmark = $this->Bookmarks->get($id);
+        if($bookmark->user_id == $user['id']){
+            return true;
+        }
+        return parent::isAuthorized($user);
+    }
+
     /**
      * Index method
      *
@@ -46,7 +69,7 @@ class BookmarksController extends AppController
 // NEW FUNCTION THAT REFLECTS OUR ROUTES CONFIG WE ADDED FOR TAGS
     public function tags()
     {
-        // The 'pass' key is provided by CakePHP and contains all
+        // The getParam 'pass' key is provided by CakePHP and contains all
         // the passed URL path segments in the request.
         $tags = $this->request->getParam('pass');
 

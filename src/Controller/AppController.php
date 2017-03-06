@@ -50,6 +50,34 @@ class AppController extends Controller
          */
         //$this->loadComponent('Security');
         //$this->loadComponent('Csrf');
+
+/*  COMPONENTS
+
+    Components can be thought of as ways to create reusable chunks of controller code related to a specific feature or concept. Components can also hook into the controller’s event life-cycle and interact with your application that way.
+    
+    We’ll pretty much want every method to require authentication, so we’ll add AuthComponent in our AppController:*/
+//NEW COMPONENT LOADED TO FACILITATE AUTHENTICATION
+
+        $this->loadComponent('Auth', [
+            'authorize'=> 'Controller',
+            'authenticate' => [
+                'Form' => [
+                    'fields' => [
+                        'username' => 'email',
+                        'password' => 'password'
+                    ]
+                ]
+            ],
+            'loginAction' => [
+                'controller' => 'Users',
+                'action' => 'login'
+            ],
+            'unauthorizedRedirect' => $this->referer() // If unauthorized, return them to page they were just on
+        ]);
+
+        // Allow the display action so our pages controller
+        // continues to work.
+        $this->Auth->allow(['display']);
     }
 
     /**
