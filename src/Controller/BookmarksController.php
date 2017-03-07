@@ -41,12 +41,14 @@ class BookmarksController extends AppController
      */
     public function index()
     {
+// Show bookmarks for the currently logged in user. We can do that by updating the call to paginate()
         $this->paginate = [
-            'contain' => ['Users']
+            'conditions' => [
+                'Bookmarks.user_id' => $this->Auth->user('id'),
+            ]
         ];
-        $bookmarks = $this->paginate($this->Bookmarks);
 
-        $this->set(compact('bookmarks'));
+        $this->set('bookmarks', $this->paginate($this->Bookmarks));
         $this->set('_serialize', ['bookmarks']);
     }
 
@@ -102,9 +104,8 @@ class BookmarksController extends AppController
             }
             $this->Flash->error(__('The bookmark could not be saved. Please, try again.'));
         }
-        $users = $this->Bookmarks->Users->find('list', ['limit' => 200]);
         $tags = $this->Bookmarks->Tags->find('list', ['limit' => 200]);
-        $this->set(compact('bookmark', 'users', 'tags'));
+        $this->set(compact('bookmark', 'tags'));
         $this->set('_serialize', ['bookmark']);
     }
 
@@ -122,6 +123,11 @@ class BookmarksController extends AppController
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $bookmark = $this->Bookmarks->patchEntity($bookmark, $this->request->data);
+
+// By setting the entity property with the session data, we remove any possibility of the user modifying which user a bookmark is for. We’ll do the same for the edit form and action.
+
+//RETURN TO THIS TO SEE HOW THIS WORKS
+            $bookmark->user_id = $this->Auth->user('id');
             if ($this->Bookmarks->save($bookmark)) {
                 $this->Flash->success(__('The bookmark has been saved.'));
 
@@ -129,9 +135,8 @@ class BookmarksController extends AppController
             }
             $this->Flash->error(__('The bookmark could not be saved. Please, try again.'));
         }
-        $users = $this->Bookmarks->Users->find('list', ['limit' => 200]);
         $tags = $this->Bookmarks->Tags->find('list', ['limit' => 200]);
-        $this->set(compact('bookmark', 'users', 'tags'));
+        $this->set(compact('bookmark', 'tags'));
         $this->set('_serialize', ['bookmark']);
     }
 

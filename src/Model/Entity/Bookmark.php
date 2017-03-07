@@ -2,6 +2,7 @@
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\Collection\Collection;
 
 /**
  * Bookmark Entity
@@ -30,7 +31,30 @@ class Bookmark extends Entity
      * @var array
      */
     protected $_accessible = [
-        '*' => true,
-        'id' => false
+        '*'              => true,
+        'id'             => false,
+        'user_id'        => true,
+        'title'          => true,
+        'description'    => true,
+        'url'            => true,
+        'user'           => true,
+        'tags'           => true,
+        'tag_string'     => true,
     ];
+
+// Because we’ll want a simple way to access the formatted tags for an entity, we can add a virtual/computed field to the entity. In src/Model/Entity/Bookmark.php add the following:
+    protected function _getTagString()
+    {
+        if (isset($this->_properties['tag_string'])) {
+            return $this->_properties['tag_string'];
+        }
+        if (empty($this->tags)) {
+            return '';
+        }
+        $tags = new Collection($this->tags);
+        $str = $tags->reduce(function ($string, $tag) {
+            return $string . $tag->title . ', ';
+        }, '');
+        return trim($str, ', ');
+    }
 }

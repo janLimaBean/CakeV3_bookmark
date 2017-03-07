@@ -112,6 +112,44 @@ class BookmarksTable extends Table
 /*Finder methods always get a Query Builder object and an array of options as parameters. Finders can manipulate the query and add any required conditions or criteria. When complete, finder methods must return a modified query object. In our finder we’ve leveraged the distinct() and matching() methods which allow us to find distinct bookmarks that have a ‘matching’ tag. The matching() method accepts an anonymous function that receives a query builder as its argument. Inside the callback we use the query builder to define conditions that will filter bookmarks that have specific tags.*/
     }
 
+    public function beforeSave($event, $entity, $options)
+    {
+        if ($entity->tag_string) {
+            $entity->tags = $this->_buildTags($entity->tag_string);
+        }
+    }
+
+    protected function _buildTags($tagString)
+    {
+        // Trim tags
+        $newTags = array_map('trim', explode(',', $tagString));
+        // Remove all empty tags
+        $newTags = array_filter($newTags);
+        // Reduce duplicated tags
+        $newTags = array_unique($newTags);
+
+        $out = [];
+        $query = $this->Tags->find()
+            ->where(['Tags.title IN' => $newTags]);
+
+        // Remove existing tags from the list of new tags.
+        foreach ($query->extract('title') as $existing) {
+            $index = array_search($existing, $newTags);
+            if ($index !== false) {
+                unset($newTags[$index]);
+            }
+        }
+        // Add existing tags.
+        foreach ($query as $tag) {
+            $out[] = $tag;
+        }
+        // Add new tags.
+        foreach ($newTags as $tag) {
+            $out[] = $this->Tags->newEntity(['title' => $tag]);
+        }
+        return $out;
+    }
+
 
 
 } // end of BookmarksTable
